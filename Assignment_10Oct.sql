@@ -78,12 +78,19 @@ INSERT INTO Sightings values
 (12, 12, 'Amazon Rainforest', '2024-12-18', 'Eve White');
 
 INSERT INTO ConservationStatus values
-(1, 1, 'Vulnerable', '2024-01-01'),
-(2, 2, 'Least Concern', '2024-01-01'),
-(3, 3, 'Endangered', '2024-01-01'),
-(4, 4, 'Near Threatened', '2024-01-01'),
-(5, 1, 'Vulnerable', '2024-06-01'),
-(6, 6, 'Least Concern', '2024-06-01');
+(1, 1, 'Endangered', '2023-01-01'),
+(2, 1, 'Vulnerable', '2023-01-09'),
+(3, 2, 'Least Concern', '2023-01-01'),
+(4, 3, 'Endangered', '2023-01-01'),
+(5, 4, 'Near Threatened', '2023-01-01'),
+(6, 5, 'Least Concern', '2023-01-01'),
+(7, 6, 'Least Concern', '2023-01-01'),
+(8, 1, 'Vulnerable', '2023-06-01'),
+(9, 2, 'Least Concern', '2023-08-01'),
+(10, 3, 'Endangered', '2023-09-01'),
+(11, 4, 'Near Threatened', '2023-10-01'),
+(12, 5, 'Least Concern', '2023-11-01'),
+(13, 6, 'Least Concern', '2023-12-01');
 
 
 Select * FROM Species;
@@ -109,9 +116,11 @@ WHERE s3.CommonName = 'Russel Viper';
 
 -- Query2
 
-SELECT SpeciesID, AVG(Lenth) as avg_length
-FROM Snakes 
-GROUP BY SpeciesID;
+SELECT s1.SpeciesID, CommonName, AVG(Lenth) as avg_length
+FROM Snakes s1
+JOIN Species s2
+ON s1.SpeciesID = s2.SpeciesID
+GROUP BY s1.SpeciesID, CommonName;
 
 
 --Query3
@@ -121,38 +130,36 @@ WITH Top_Snakes AS
 SELECT SpeciesID, SnakeID, Lenth, RANK() OVER(Partition BY SpeciesID ORDER BY Lenth DESC) as Lenth_rank
 FROM Snakes
 )
-SELECT SpeciesID, SnakeId, Lenth 
+SELECT ts.SpeciesID, CommonName, SnakeId, Lenth 
 FROM Top_Snakes ts
+JOIN Species s
+ON ts.SpeciesID = s.SpeciesID
 WHERE Lenth_rank <= 5;
 
 
 
 -- Query4
 
-SELECT TOP 1 Observer, SpeciesID, COUNT(*) as Count_seen
+SELECT TOP 1 Observer, s2.SpeciesID, CommonName, COUNT(*) as Count_seen
 FROM Sightings s1
 JOIN Snakes s2
 ON s1.SnakeID = s2.SnakeID
-GROUP BY Observer, SpeciesID
+JOIN Species s3
+ON s2.SpeciesID = s3.SpeciesID
+GROUP BY Observer, s2.SpeciesID, CommonName
 ORDER BY Count_seen DESC;
 
 -- Query5
 
-CREATE TRIGGER UpdateDateOnTableUpdation
-ON ConservationStatus
-AFTER INSERT, UPDATE
-AS
-BEGIN
-UPDATE ConservationStatus
-SET LastUpdated = GETDATE() WHERE StatusID IN (SELECT StatusID FROM inserted);
-END;
-
-UPDATE ConservationStatus
-SET Status = 'Threatened' WHERE StatusId = 6;
+SELECT c.*, s.CommonName
+FROM ConservationStatus c
+JOIN Species s
+ON c.SpeciesID = s.SpeciesID
+ORDER BY SpeciesID, LastUpdated;
 
 -- Query6
 
-SELECT SpeciesMoreThan10.SpeciesID FROM 
+SELECT SpeciesMoreThan10.SpeciesID, s3.CommonName FROM 
 (SELECT s2.SpeciesID
 FROM Sightings s1
 JOIN Snakes s2
@@ -160,4 +167,6 @@ ON s1.SnakeID = s2.SnakeID
 GROUP BY s2.SpeciesID
 HAVING COUNT(*) > 10 ) AS SpeciesMoreThan10
 JOIN ConservationStatus c
-ON SpeciesMoreThan10.SpeciesID = c.SpeciesID AND c.Status = 'Endangered';
+ON SpeciesMoreThan10.SpeciesID = c.SpeciesID AND c.Status = 'Endangered'
+JOIN Species s3
+ON s3.SpeciesID = SpeciesMoreThan10.SpeciesID;
