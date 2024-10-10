@@ -84,14 +84,13 @@ INSERT INTO ConservationStatus values
 (4, 3, 'Endangered', '2023-01-01'),
 (5, 4, 'Near Threatened', '2023-01-01'),
 (6, 5, 'Least Concern', '2023-01-01'),
-(7, 6, 'Least Concern', '2023-01-01'),
-(8, 1, 'Vulnerable', '2023-06-01'),
+(7, 6, 'No Concern', '2023-01-01'),
+(8, 1, 'Extinct', '2023-06-01'),
 (9, 2, 'Least Concern', '2023-08-01'),
-(10, 3, 'Endangered', '2023-09-01'),
-(11, 4, 'Near Threatened', '2023-10-01'),
-(12, 5, 'Least Concern', '2023-11-01'),
+(10, 3, 'Not Endangered', '2023-09-01'),
+(11, 4, 'Most Threatened', '2023-10-01'),
+(12, 5, 'Most Concern', '2023-11-01'),
 (13, 6, 'Least Concern', '2023-12-01');
-
 
 Select * FROM Species;
 
@@ -114,6 +113,7 @@ ON s2.SpeciesID = s3.SpeciesID
 WHERE s3.CommonName = 'Russel Viper';
 
 
+
 -- Query2
 
 SELECT s1.SpeciesID, CommonName, AVG(Lenth) as avg_length
@@ -121,6 +121,7 @@ FROM Snakes s1
 JOIN Species s2
 ON s1.SpeciesID = s2.SpeciesID
 GROUP BY s1.SpeciesID, CommonName;
+
 
 
 --Query3
@@ -149,6 +150,8 @@ ON s2.SpeciesID = s3.SpeciesID
 GROUP BY Observer, s2.SpeciesID, CommonName
 ORDER BY Count_seen DESC;
 
+
+
 -- Query5
 
 SELECT c.*, s.CommonName
@@ -156,6 +159,8 @@ FROM ConservationStatus c
 JOIN Species s
 ON c.SpeciesID = s.SpeciesID
 ORDER BY SpeciesID, LastUpdated;
+
+
 
 -- Query6
 
